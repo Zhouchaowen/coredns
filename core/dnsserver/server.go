@@ -32,13 +32,13 @@ import (
 // the same address and the listener may be stopped for
 // graceful termination (POSIX only).
 type Server struct {
-	Addr string // Address we listen on
+	Addr string // Address we listen on 监听地址
 
 	server [2]*dns.Server // 0 is a net.Listener, 1 is a net.PacketConn (a *UDPConn) in our case.
 	m      sync.Mutex     // protects the servers
 
 	zones        map[string][]*Config // zones keyed by their address
-	dnsWg        sync.WaitGroup       // used to wait on outstanding connections
+	dnsWg        sync.WaitGroup       // used to wait on outstanding connections 用于等待未完成的连接
 	graceTimeout time.Duration        // the maximum duration of a graceful shutdown
 	trace        trace.Trace          // the trace plugin for the server
 	debug        bool                 // disable recover()
@@ -58,6 +58,8 @@ type MetadataCollector interface {
 
 // NewServer returns a new CoreDNS server and compiles all plugins in to it. By default CH class
 // queries are blocked unless queries from enableChaos are loaded.
+// NewServer返回一个新的CoreDNS服务器，并将所有插件编译到其中。
+// 默认情况下，CH类查询被阻塞，除非从enableChaos中加载查询。
 func NewServer(addr string, group []*Config) (*Server, error) {
 	s := &Server{
 		Addr:         addr,
@@ -98,17 +100,19 @@ func NewServer(addr string, group []*Config) (*Server, error) {
 			s.idleTimeout = site.IdleTimeout
 		}
 
-		// copy tsig secrets
+		// copy tsig secrets 密钥
 		for key, secret := range site.TsigSecret {
 			s.tsigSecret[key] = secret
 		}
 
 		// compile custom plugin for everything
+		// 编译自定义插件的一切
 		var stack plugin.Handler
 		for i := len(site.Plugin) - 1; i >= 0; i-- {
 			stack = site.Plugin[i](stack)
 
 			// register the *handler* also
+			// 注册处理程序
 			site.registerHandler(stack)
 
 			// If the current plugin is a MetadataCollector, bookmark it for later use. This loop traverses the plugin
@@ -145,6 +149,7 @@ var _ caddy.GracefulServer = &Server{}
 
 // Serve starts the server with an existing listener. It blocks until the server stops.
 // This implements caddy.TCPServer interface.
+// Serve使用现有的侦听器启动服务器。它会阻塞，直到服务器停止。这实现了caddy。TCPServer接口。
 func (s *Server) Serve(l net.Listener) error {
 	s.m.Lock()
 

@@ -191,6 +191,7 @@ func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
 	}
 
 	// For each server config, check for View Filter plugins
+	// 对于每个服务器配置，检查查看过滤器插件
 	for _, c := range h.configs {
 		// Add filters in the plugin.cfg order for consistent filter func evaluation order.
 		for _, d := range Directives {
@@ -206,6 +207,7 @@ func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
 
 	// Verify that there is no overlap on the zones and listen addresses
 	// for unfiltered server configs
+	// 验证区域上没有重叠，并监听未经过滤的服务器配置的地址
 	errValid := h.validateZonesAndListeningAddresses()
 	if errValid != nil {
 		return nil, errValid
